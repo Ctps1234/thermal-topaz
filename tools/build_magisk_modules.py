@@ -125,6 +125,12 @@ description={desc}
 def main():
     presets = [
         (
+            "Normal_AntiThrottling",
+            "Thermal Normal (Anti-Throttling & No-Lag)",
+            "Fixes premature thermal throttling at 35-38C on Redmi Note 12 4G (topaz/tapas). Maintains full CPU clocks until 48C, prevents drops to 800MHz, and keeps all 8 cores active.",
+            MODS_DIR / "thermal_normal_anti_throttling" / "encrypted"
+        ),
+        (
             "Gaming_Performance",
             "Gaming & Performance",
             "Redmi Note 12 4G (topaz/tapas) thermal mod. Relaxes CPU throttling, keeps all 8 cores active (no hotplug), and disables screen brightness dimming in games.",
