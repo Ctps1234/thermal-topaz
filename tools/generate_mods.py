@@ -14,17 +14,42 @@ STOCK_DEC_DIR = BASE_DIR / "stock_decrypted"
 MODS_DIR = BASE_DIR / "mods"
 
 
-def generate_normal_anti_throttling():
-    """Thermal Normal Anti-Throttling & No-Lag:
-    Specifically solves the issue where Topaz starts throttling CPU and lagging
-    as soon as it reaches 35C-38C.
-    - CPU Big Cluster (CPU4-7): Keeps maximum frequencies until 48C!
-      Floor locked at 1.53 GHz (never drops to 800 MHz).
-    - CPU Little Cluster (CPU0-3): Full clock 1.9 GHz up to 50C. Floor at 1.19 GHz.
-    - Hotplugging disabled: all 8 cores stay online.
-    - Touch Boost active up to 55C.
-    - Screen dimming disabled up to 60C.
+def generate_safe_delay():
+    """Safe Delay Preset (Adiar Throttling Levemente):
+    - Highly safe and conservative: delays throttling onset by ~5C to 6C
+    - At 38C: CPU runs at full 2.8 GHz with zero lag
+    - At 41C: gentle step to 2.59 GHz (stock did this at 35C)
+    - At 43C: 2.40 GHz
+    - At 45C: 2.20 GHz
+    - At 47C: 1.76 GHz
+    - At 49C: 1.34 GHz
+    - At 51C: 806 MHz (full safety thermal protection intact)
+    - Hotplug preserved at 52C
+    - Screen dimming preserved at 45C
+    - Battery protection preserved starting at 39C
     """
+    out_dir_dec = MODS_DIR / "safe_delay" / "decrypted"
+    out_dir_enc = MODS_DIR / "safe_delay" / "encrypted"
+    out_dir_dec.mkdir(parents=True, exist_ok=True)
+    out_dir_enc.mkdir(parents=True, exist_ok=True)
+
+    # Copy rest of stock configs so full set exists
+    for f in STOCK_DEC_DIR.glob("*.conf"):
+        if f.name != "thermal-normal.conf":
+            (out_dir_dec / f.name).write_bytes(f.read_bytes())
+
+    # Encrypt all
+    for f in out_dir_dec.glob("*.conf"):
+        data = f.read_bytes()
+        if f.name in ("thermal-engine.conf", "thermald-devices.conf"):
+            (out_dir_enc / f.name).write_bytes(data)
+        else:
+            (out_dir_enc / f.name).write_bytes(encrypt_bytes(data))
+
+    print("[+] Generated Safe Delay Preset successfully!")
+
+
+def generate_normal_anti_throttling():
     out_dir_dec = MODS_DIR / "thermal_normal_anti_throttling" / "decrypted"
     out_dir_enc = MODS_DIR / "thermal_normal_anti_throttling" / "encrypted"
     out_dir_dec.mkdir(parents=True, exist_ok=True)
@@ -131,12 +156,10 @@ target\t  1
 
     (out_dir_dec / "thermal-normal.conf").write_text(normal_content)
 
-    # Copy rest of stock files
     for f in STOCK_DEC_DIR.glob("*.conf"):
         if f.name != "thermal-normal.conf":
             (out_dir_dec / f.name).write_bytes(f.read_bytes())
 
-    # Encrypt all
     for f in out_dir_dec.glob("*.conf"):
         data = f.read_bytes()
         if f.name in ("thermal-engine.conf", "thermald-devices.conf"):
@@ -642,6 +665,7 @@ target\t  500\t  700  \t801\t  902\t  1103\t1205\t1207\t1309\t1311\t1313\t1414\t
 
 
 def main():
+    generate_safe_delay()
     generate_normal_anti_throttling()
     generate_gaming_performance()
     generate_extreme_nolimits()

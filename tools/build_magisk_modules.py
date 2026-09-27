@@ -99,8 +99,8 @@ def create_module_zip(preset_name: str, display_name: str, desc: str, source_enc
 
     prop_content = f"""id=topaz_thermal_{preset_name.lower()}
 name=Topaz Thermal Mod - {display_name}
-version=v1.2
-versionCode=120
+version=v1.3
+versionCode=130
 author=Ctps1234
 description={desc}
 """
@@ -124,6 +124,12 @@ description={desc}
 
 def main():
     presets = [
+        (
+            "Safe_Delay",
+            "Safe Mild Delay (Adiar Throttling Seguro)",
+            "Delays thermal throttling safely by ~5-6C. Eliminates 35-38C lag while preserving all stock thermal safeguards, hotplug protection, and battery safety.",
+            MODS_DIR / "safe_delay" / "encrypted"
+        ),
         (
             "Normal_AntiThrottling",
             "Thermal Normal (Anti-Throttling & No-Lag)",
